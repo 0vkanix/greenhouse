@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -23,16 +24,16 @@ func TestShowMovieHandler(t *testing.T) {
 	defer server.Close()
 
 	tests := []struct {
-		name     string
-		movieID  string
-		wantCode int
-		wantBody string
+		name       string
+		movieID    string
+		wantCode   int
+		wantInBody []string
 	}{
 		{
-			name:     "Valid request",
-			movieID:  "1",
-			wantCode: http.StatusOK,
-			wantBody: "show the details of movie 1",
+			name:       "Valid request",
+			movieID:    "1",
+			wantCode:   http.StatusOK,
+			wantInBody: []string{`"id":1`, `"title":"Casablanca"`, `"runtime":102`},
 		},
 		{
 			name:     "Invalid ID parameter",
@@ -48,11 +49,11 @@ func TestShowMovieHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			code, _, body := server.get(t, "/v1/movies/"+tt.movieID)
+			code, _, body := server.get(t, fmt.Sprintf("/v1/movies/%s", tt.movieID))
 
 			assert.Equal(t, code, tt.wantCode)
-			if tt.wantBody != "" {
-				assert.Equal(t, body, tt.wantBody)
+			for _, want := range tt.wantInBody {
+				assert.StringContains(t, body, want)
 			}
 		})
 	}

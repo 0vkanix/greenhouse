@@ -2,20 +2,18 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/0vkanix/greenlight/internal/errors"
 	"github.com/go-chi/chi/v5"
 )
-
-var ErrInvalidIdParam = errors.New("invalid id parameter")
 
 func (app *application) readIDParam(r *http.Request) (int64, error) {
 	idParam := chi.URLParamFromCtx(r.Context(), "id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil || id < 1 {
-		return 0, ErrInvalidIdParam
+		return 0, errors.ErrInvalidIDParam
 	}
 
 	return id, nil
