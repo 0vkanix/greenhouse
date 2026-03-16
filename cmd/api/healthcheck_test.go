@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"testing"
 
@@ -16,5 +17,19 @@ func TestHealthcheckHandler(t *testing.T) {
 
 	assert.Equal(t, code, http.StatusOK)
 	assert.Equal(t, headers.Get("Content-Type"), "application/json")
-	assert.Equal(t, body, `{"status": "available", "environment": "test", "version": "1.0.0"}`)
+
+	var got struct {
+		Status      string `json:"status"`
+		Environment string `json:"environment"`
+		Version     string `json:"version"`
+	}
+
+	err := json.Unmarshal([]byte(body), &got)
+	if err != nil {
+		t.Fatalf("failed to unmarshal JSON: %v", err)
+	}
+
+	assert.Equal(t, got.Status, "available")
+	assert.Equal(t, got.Environment, "test")
+	assert.Equal(t, got.Version, "1.0.0")
 }

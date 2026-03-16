@@ -8,3 +8,7 @@ help:
 test-full:
 	go test -v -count=1 -coverprofile=coverage.out ./cmd/api/...
 	go tool cover -func=coverage.out
+
+.PHONY: test
+test:
+	go test -v ./cmd/api/
