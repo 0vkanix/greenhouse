@@ -1,1 +1,4 @@
-./GEMINI.md
+bin/
+
+GEMINI.md
+coverage.out

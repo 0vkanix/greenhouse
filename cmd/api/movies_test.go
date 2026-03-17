@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
+	"github.com/0vkanix/greenlight/internal/data"
 )
 
 func TestCreateMovieHandler(t *testing.T) {
@@ -26,13 +29,17 @@ func TestShowMovieHandler(t *testing.T) {
 		name     string
 		movieID  string
 		wantCode int
-		wantBody string
+		wantData *data.Movie
 	}{
 		{
 			name:     "Valid request",
 			movieID:  "1",
 			wantCode: http.StatusOK,
-			wantBody: "show the details of movie 1",
+			wantData: &data.Movie{
+				ID:      1,
+				Title:   "Casablanca",
+				Runtime: 102,
+			},
 		},
 		{
 			name:     "Invalid ID parameter",
@@ -48,11 +55,23 @@ func TestShowMovieHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			code, _, body := server.get(t, "/v1/movies/"+tt.movieID)
+			code, _, body := server.get(t, fmt.Sprintf("/v1/movies/%s", tt.movieID))
 
 			assert.Equal(t, code, tt.wantCode)
-			if tt.wantBody != "" {
-				assert.Equal(t, body, tt.wantBody)
+
+			if tt.wantData != nil {
+				var got struct {
+					Movie *data.Movie `json:"movie"`
+				}
+
+				err := json.Unmarshal([]byte(body), &got)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				assert.Equal(t, got.Movie.ID, tt.wantData.ID)
+				assert.Equal(t, got.Movie.Title, tt.wantData.Title)
+				assert.Equal(t, got.Movie.Runtime, tt.wantData.Runtime)
 			}
 		})
 	}

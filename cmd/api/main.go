@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -22,13 +23,27 @@ type application struct {
 }
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+	if err := run(os.Args, os.Stdout, logger); err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+}
+
+func run(args []string, stdout io.Writer, logger *slog.Logger) error {
 	var cfg config
 
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production")
-	flag.Parse()
+	f := flag.NewFlagSet(args[0], flag.ContinueOnError)
+	f.SetOutput(io.Discard) // keep tests quiet
 
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	f.IntVar(&cfg.port, "port", 4000, "API server port")
+	f.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
+
+	if err := f.Parse(args[1:]); err != nil {
+		return err
+	}
+
 	app := &application{
 		config: cfg,
 		logger: logger,
@@ -43,9 +58,13 @@ func main() {
 		ErrorLog:     slog.NewLogLogger(logger.Handler(), slog.LevelError),
 	}
 
+	// For testing purposes, we can check for a special environment "test-config"
+	// to avoid starting the server.
+	if cfg.env == "test-config" {
+		return nil
+	}
+
 	logger.Info("starting server", "addr", srv.Addr, "env", cfg.env)
 
-	err := srv.ListenAndServe()
-	logger.Error(err.Error())
-	os.Exit(1)
+	return srv.ListenAndServe()
 }
