@@ -55,12 +55,24 @@ func TestServerErrorResponse(t *testing.T) {
 func TestErrorResponse(t *testing.T) {
 	app := newTestApplication(t)
 
-	t.Run("Marshal failure", func(t *testing.T) {
-		rr := httptest.NewRecorder()
-		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+	rr := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-		app.errorResponse(rr, r, http.StatusInternalServerError, make(chan int))
+	app.errorResponse(rr, r, http.StatusInternalServerError, make(chan int))
 
-		assert.Equal(t, rr.Code, http.StatusInternalServerError)
-	})
+	assert.Equal(t, rr.Code, http.StatusInternalServerError)
+}
+
+func TestFailedValidationResponse(t *testing.T) {
+	app := newTestApplication(t)
+	rr := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	err := make(map[string]string)
+
+	err["error"] = "failed validation error"
+
+	app.failedValidationResponse(rr, r, err)
+
+	assert.Equal(t, rr.Code, http.StatusUnprocessableEntity)
 }

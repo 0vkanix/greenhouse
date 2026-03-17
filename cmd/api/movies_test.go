@@ -38,6 +38,11 @@ func TestCreateMovieHandler(t *testing.T) {
 			input:    `{"title":"Casablanca","year":"Year 1942"}`,
 			wantCode: http.StatusBadRequest,
 		},
+		{
+			name:     "Validation failure (empty title)",
+			input:    `{"title":"","year":1942,"runtime":"102 mins","genres":["drama"]}`,
+			wantCode: http.StatusUnprocessableEntity,
+		},
 	}
 
 	for _, tt := range tests {
