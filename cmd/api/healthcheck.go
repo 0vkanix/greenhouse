@@ -9,8 +9,7 @@ import (
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := envelope{
 		"status":      "available",
-		"environment": app.config.env,
-		"version":     version,
+		"environment": app.config.env, "version": version,
 	}
 	err := app.writeJSON(w, r, http.StatusOK, data, nil)
 	if err != nil {
