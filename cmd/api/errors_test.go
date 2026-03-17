@@ -29,6 +29,18 @@ func TestNotFoundResponse(t *testing.T) {
 	assert.Equal(t, code, http.StatusNotFound)
 }
 
+func TestBadRequestResponse(t *testing.T) {
+	app := newTestApplication(t)
+	rr := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodPost, "/", nil)
+
+	err := errors.New("bad request error")
+	app.badRequestResponse(rr, r, err)
+
+	assert.Equal(t, rr.Code, http.StatusBadRequest)
+	assert.StringContains(t, rr.Body.String(), "bad request error")
+}
+
 func TestServerErrorResponse(t *testing.T) {
 	app := newTestApplication(t)
 	rr := httptest.NewRecorder()
@@ -47,7 +59,6 @@ func TestErrorResponse(t *testing.T) {
 		rr := httptest.NewRecorder()
 		r, _ := http.NewRequest(http.MethodGet, "/", nil)
 
-		// Passing a channel will cause json.Marshal to fail
 		app.errorResponse(rr, r, http.StatusInternalServerError, make(chan int))
 
 		assert.Equal(t, rr.Code, http.StatusInternalServerError)

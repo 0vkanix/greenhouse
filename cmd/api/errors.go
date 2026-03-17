@@ -21,6 +21,10 @@ func (app *application) logError(r *http.Request, err error) {
 	app.logger.Error(err.Error(), slog.String("method", method), slog.String("uri", uri))
 }
 
+func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
+}
+
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {
 	env := envelope{"error": message}
 	err := app.writeJSON(w, r, status, env, nil)
