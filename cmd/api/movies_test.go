@@ -24,7 +24,7 @@ func TestCreateMovieHandler(t *testing.T) {
 	}{
 		{
 			name:      "Valid request",
-			input:     `{"title":"Casablanca","year":1942,"runtime":102,"genres":["drama","war"],"version":1}`,
+			input:     `{"title":"Casablanca","year":1942,"runtime":102,"genres":["drama","war"]}`,
 			wantCode:  http.StatusOK,
 			wantTitle: "Casablanca",
 		},
