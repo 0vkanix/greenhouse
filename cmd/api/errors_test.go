@@ -1,0 +1,55 @@
+package main
+
+import (
+	"errors"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/0vkanix/greenlight/internal/assert"
+)
+
+func TestMethodNotAllowedResponse(t *testing.T) {
+	app := newTestApplication(t)
+	server := newTestServer(t, app.routes())
+	defer server.Close()
+
+	code, _, _ := server.post(t, "/v1/healthcheck", nil)
+
+	assert.Equal(t, code, http.StatusMethodNotAllowed)
+}
+
+func TestNotFoundResponse(t *testing.T) {
+	app := newTestApplication(t)
+	server := newTestServer(t, app.routes())
+	defer server.Close()
+
+	code, _, _ := server.get(t, "/v1/movie/-1")
+
+	assert.Equal(t, code, http.StatusNotFound)
+}
+
+func TestServerErrorResponse(t *testing.T) {
+	app := newTestApplication(t)
+	rr := httptest.NewRecorder()
+	r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+	app.serverErrorResponse(rr, r, errors.New("test error"))
+
+	assert.Equal(t, rr.Code, http.StatusInternalServerError)
+	assert.StringContains(t, rr.Body.String(), ErrInternalServerError)
+}
+
+func TestErrorResponse(t *testing.T) {
+	app := newTestApplication(t)
+
+	t.Run("Marshal failure", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+		// Passing a channel will cause json.Marshal to fail
+		app.errorResponse(rr, r, http.StatusInternalServerError, make(chan int))
+
+		assert.Equal(t, rr.Code, http.StatusInternalServerError)
+	})
+}
