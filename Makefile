@@ -11,4 +11,4 @@ test-full:
 
 .PHONY: test
 test:
-	go test -v ./cmd/api/
+	go test ./cmd/api/ -coverprofile=coverage.out
