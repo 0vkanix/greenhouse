@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/0vkanix/greenlight/internal/data"
-	"github.com/0vkanix/greenlight/internal/errors"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +15,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
-		http.NotFound(w, r)
+		app.notFoundResponse(w, r)
 		return
 	}
 
@@ -31,7 +30,6 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 
 	err = app.writeJSON(w, r, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
-		app.logger.Error(err.Error())
-		http.Error(w, errors.ErrInternalServerError.Error(), http.StatusInternalServerError)
+		app.serverErrorResponse(w, r, err)
 	}
 }
