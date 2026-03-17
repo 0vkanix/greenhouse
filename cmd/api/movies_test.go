@@ -52,6 +52,7 @@ func TestShowMovieHandler(t *testing.T) {
 			code, _, body := server.get(t, fmt.Sprintf("/v1/movies/%s", tt.movieID))
 
 			assert.Equal(t, code, tt.wantCode)
+
 			for _, want := range tt.wantInBody {
 				assert.StringContains(t, body, want)
 			}
