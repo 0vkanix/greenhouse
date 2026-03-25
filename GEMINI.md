@@ -63,10 +63,15 @@ greenlight/
 
 - [x] Chapter 1-3: Project setup, Routing, JSON responses.
 - [x] Chapter 4: Parsing JSON requests & Data Validation.
-- [ ] Refactor: Migrate to "restapi" project structure.
-- [ ] Chapter 5: Database Setup & Configuration (Pooling, Timeouts).
-- [ ] Chapter 6: SQL Migrations.
-- [ ] Chapter 7: CRUD Operations (SQLC Pivot).
+- [x] Refactor: Migrate to "restapi" project structure.
+- [x] Chapter 5: Database Setup & Configuration (Pooling, Timeouts).
+- [x] Chapter 6: SQL Migrations.
+- [ ] Chapter 7: CRUD Operations (SQLC Pivot & UUID Migration).
+    - [ ] Migration: Switch `movies.id` from `bigint` to `uuid`.
+    - [ ] SQLC Setup: Configure `sqlc.yaml` for `pgx/v5`.
+    - [ ] Queries: Define `CreateMovie`, `GetMovie`, `UpdateMovie`, `DeleteMovie` in `internal/movie/queries.sql`.
+    - [ ] Generation: Run `sqlc generate`.
+    - [ ] Repository: Implement `internal/movie/repository.go` as an `sqlc` wrapper.
 - [ ] Chapter 8: Advanced CRUD (Optimistic Concurrency, Timeouts).
 - [ ] Chapter 9: Filtering, Sorting, Pagination.
 - [ ] Chapter 10-11: Rate Limiting & Graceful Shutdown.
@@ -78,7 +83,8 @@ greenlight/
 
 ## Roadmap
 
-- [ ] Containerize application (Docker).
+- [x] Containerize PostgreSQL (Docker Compose).
+- [x] Containerize application (Docker).
 - [ ] Infrastructure as Code (Terraform or CloudFormation) for AWS.
 - [ ] GitHub Actions for automated build and deploy.
 - [ ] RDS (PostgreSQL) setup in AWS.

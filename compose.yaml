@@ -10,7 +10,7 @@ services:
       - 5432:5432
     volumes:
       - greenlight_data:/var/lib/postgresql
-      - ./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./migrations/docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
   api:
     build:
         context: .

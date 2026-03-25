@@ -19,7 +19,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
   -o /bin/api ./cmd/api
 
 # --- Stage 2: Runtime ---
-FROM alpine:latest
+FROM alpine:3.23
 
 # Add standard libraries and timezome data
 RUN apk add --no-cache ca-certificates tzdata
