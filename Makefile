@@ -29,3 +29,8 @@ down:
 reset:
 	docker compose down -v
 	docker compose up --build
+
+.PHONY: migrate-new
+migrate-new:
+	@read -p "Migration name: " name; \
+	migrate create -seq -ext=.sql -dir=./migrations $$name

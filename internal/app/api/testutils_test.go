@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"bytes"
@@ -9,15 +9,15 @@ import (
 	"testing"
 )
 
-func newTestApplication(t *testing.T) *application {
-	config := config{
-		port: 9999,
-		env:  "test",
+func newTestApplication(t *testing.T) *Application {
+	config := Config{
+		Port: 9999,
+		Env:  "test",
 	}
 
-	return &application{
-		config: config,
-		logger: slog.New(slog.DiscardHandler),
+	return &Application{
+		Config: config,
+		Logger: slog.New(slog.DiscardHandler),
 	}
 }
 

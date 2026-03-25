@@ -1,4 +1,4 @@
-package data
+package movie
 
 import (
 	"time"

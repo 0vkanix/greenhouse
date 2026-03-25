@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
-	"github.com/0vkanix/greenlight/internal/data"
+	"github.com/0vkanix/greenlight/internal/movie"
 )
 
 func TestCreateMovieHandler(t *testing.T) {
@@ -67,13 +67,13 @@ func TestShowMovieHandler(t *testing.T) {
 		name     string
 		movieID  string
 		wantCode int
-		wantData *data.Movie
+		wantData *movie.Movie
 	}{
 		{
 			name:     "Valid request",
 			movieID:  "1",
 			wantCode: http.StatusOK,
-			wantData: &data.Movie{
+			wantData: &movie.Movie{
 				ID:      1,
 				Title:   "Casablanca",
 				Runtime: 102,
@@ -99,7 +99,7 @@ func TestShowMovieHandler(t *testing.T) {
 
 			if tt.wantData != nil {
 				var got struct {
-					Movie *data.Movie `json:"movie"`
+					Movie *movie.Movie `json:"movie"`
 				}
 
 				err := json.NewDecoder(bytes.NewBufferString(body)).Decode(&got)

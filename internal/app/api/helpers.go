@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ import (
 
 type envelope map[string]any
 
-func (app *application) readIDParam(r *http.Request) (int64, error) {
+func (app *Application) readIDParam(r *http.Request) (int64, error) {
 	idParam := chi.URLParamFromCtx(r.Context(), "id")
 	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil || id < 1 {
@@ -24,7 +24,7 @@ func (app *application) readIDParam(r *http.Request) (int64, error) {
 	return id, nil
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, r *http.Request, status int, data envelope, headers http.Header) error {
+func (app *Application) writeJSON(w http.ResponseWriter, r *http.Request, status int, data envelope, headers http.Header) error {
 	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (app *application) writeJSON(w http.ResponseWriter, r *http.Request, status
 	return nil
 }
 
-func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+func (app *Application) readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
 	r.Body = http.MaxBytesReader(w, r.Body, 1_048_576)
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
