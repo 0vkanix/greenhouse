@@ -3,3 +3,5 @@ bin/
 GEMINI.md
 coverage.out
 cover.html
+.env
+*.pdf
