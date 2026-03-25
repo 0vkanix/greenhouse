@@ -1,3 +1,6 @@
+-include .env
+export
+
 .PHONY: help
 help:
 	@echo 'Usage:'
@@ -34,3 +37,11 @@ reset:
 migrate-new:
 	@read -p "Migration name: " name; \
 	migrate create -seq -ext=.sql -dir=./migrations $$name
+
+.PHONY: migrate-up
+migrate-up:
+	migrate -path=./migrations/ -database=${GREENLIGHT_DB_DSN_LOCAL} up
+
+.PHONY: migrate-down
+migrate-down:
+	migrate -path=./migrations/ -database=${GREENLIGHT_DB_DSN_LOCAL} down
