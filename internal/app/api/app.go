@@ -15,7 +15,7 @@ const version = "1.0.0"
 type Application struct {
 	Config Config
 	Logger *slog.Logger
-	Movies *movie.Repository
+	Movies movie.RepositoryInterface
 }
 
 func Run(cfg Config, logger *slog.Logger) error {

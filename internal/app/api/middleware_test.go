@@ -6,17 +6,17 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
+	"github.com/0vkanix/greenlight/internal/movie"
 )
 
 func TestRecoverPanic(t *testing.T) {
-	app := newTestApplication(t)
+	stubRepo := &movie.StubMovieRepository{}
+	app := newTestApplication(t, stubRepo)
 
-	// Create a handler that panics
 	panicHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		panic("intentional panic")
 	})
 
-	// Wrap it with our recoverPanic middleware
 	h := app.recoverPanic(panicHandler)
 
 	rr := httptest.NewRecorder()

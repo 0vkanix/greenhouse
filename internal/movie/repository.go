@@ -2,15 +2,20 @@ package movie
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var ErrRecordNotFound = errors.New("record not found")
+
+type RepositoryInterface interface {
+	Insert(ctx context.Context, movie *Movie) error
+	Get(ctx context.Context, id uuid.UUID) (*Movie, error)
+}
 
 type Repository struct {
 	pool    *pgxpool.Pool
@@ -54,7 +59,7 @@ func (r *Repository) Get(ctx context.Context, id uuid.UUID) (*Movie, error) {
 	movie, err := r.queries.Get(ctx, id)
 	if err != nil {
 		switch {
-		case errors.Is(err, sql.ErrNoRows):
+		case errors.Is(err, pgx.ErrNoRows):
 			return nil, ErrRecordNotFound
 		default:
 			return nil, err

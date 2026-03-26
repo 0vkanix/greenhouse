@@ -7,17 +7,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/0vkanix/greenlight/internal/movie"
 )
 
-func newTestApplication(t *testing.T) *Application {
-	config := Config{
-		Port: 9999,
-		Env:  "test",
-	}
-
+func newTestApplication(t *testing.T, repo movie.RepositoryInterface) *Application {
 	return &Application{
-		Config: config,
+		Config: Config{Env: "test"},
 		Logger: slog.New(slog.DiscardHandler),
+		Movies: repo,
 	}
 }
 

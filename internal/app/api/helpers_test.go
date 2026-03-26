@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -9,10 +10,76 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
+	"github.com/0vkanix/greenlight/internal/movie"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
+func TestReadIDParam(t *testing.T) {
+	app := newTestApplication(t, &movie.StubMovieRepository{})
+
+	tests := []struct {
+		name    string
+		idParam string
+		want    uuid.UUID
+		wantErr bool
+	}{
+		{
+			name:    "Valid UUID",
+			idParam: "550e8400-e29b-41d4-a716-446655440000",
+			want:    uuid.MustParse("550e8400-e29b-41d4-a716-446655440000"),
+			wantErr: false,
+		},
+		{
+			name:    "Invalid UUID (alphabetic)",
+			idParam: "abc",
+			want:    uuid.Nil,
+			wantErr: true,
+		},
+		{
+			name:    "Invalid UUID (too short)",
+			idParam: "550e8400",
+			want:    uuid.Nil,
+			wantErr: true,
+		},
+		{
+			name:    "Missing ID parameter",
+			idParam: "",
+			want:    uuid.Nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, _ := http.NewRequest(http.MethodGet, "/", nil)
+
+			// Mock chi context for URL parameter
+			rctx := chi.NewRouteContext()
+			rctx.URLParams.Add("id", tt.idParam)
+			r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+
+			got, err := app.readIDParam(r)
+
+			if tt.wantErr {
+				if err == nil {
+					t.Error("expected an error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			assert.Equal(t, got, tt.want)
+		})
+	}
+}
+
 func TestWriteJSON(t *testing.T) {
-	app := newTestApplication(t)
+	stubRepo := &movie.StubMovieRepository{}
+	app := newTestApplication(t, stubRepo)
 
 	t.Run("Custom headers", func(t *testing.T) {
 		rr := httptest.NewRecorder()
@@ -32,7 +99,8 @@ func TestWriteJSON(t *testing.T) {
 }
 
 func TestReadJSON(t *testing.T) {
-	app := newTestApplication(t)
+	stubRepo := &movie.StubMovieRepository{}
+	app := newTestApplication(t, stubRepo)
 
 	tests := []struct {
 		name          string
