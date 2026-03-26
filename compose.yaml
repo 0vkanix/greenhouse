@@ -11,21 +11,28 @@ services:
     volumes:
       - greenlight_data:/var/lib/postgresql
       - ./migrations/docker/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   api:
     build:
-        context: .
-        dockerfile: build/package/Dockerfile
+      context: .
+      dockerfile: build/package/Dockerfile
     ports:
       - ${API_PORT}:${API_PORT}
-    command: [
-      "-port=${API_PORT}",
-      "-db-dsn=postgres://${APP_DB_USER}:${APP_DB_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable",
-      "-db-max-open-conns=${DB_MAX_OPEN_CONNS}",
-      "-db-max-idle-conns=${DB_MAX_IDLE_CONNS}",
-      "-db-max-idle-time=${DB_MAX_IDLE_TIME}",
-    ]
+    command:
+      [
+        "-port=${API_PORT}",
+        "-db-dsn=postgres://${APP_DB_USER}:${APP_DB_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable",
+        "-db-max-open-conns=${DB_MAX_OPEN_CONNS}",
+        "-db-max-idle-conns=${DB_MAX_IDLE_CONNS}",
+        "-db-max-idle-time=${DB_MAX_IDLE_TIME}",
+      ]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - GREENLIGHT_DB_DSN=postgres://${APP_DB_USER}:${APP_DB_PASSWORD}@db/${POSTGRES_DB}?sslmode=disable
 

@@ -6,19 +6,19 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type envelope map[string]any
 
-func (app *Application) readIDParam(r *http.Request) (int64, error) {
+func (app *Application) readIDParam(r *http.Request) (uuid.UUID, error) {
 	idParam := chi.URLParamFromCtx(r.Context(), "id")
-	id, err := strconv.ParseInt(idParam, 10, 64)
-	if err != nil || id < 1 {
-		return 0, errors.New("invalid id parameter")
+	id, err := uuid.Parse(idParam)
+	if err != nil {
+		return uuid.Max, errors.New("invalid id parameter")
 	}
 
 	return id, nil

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/0vkanix/greenlight/internal/movie"
 )
 
 const version = "1.0.0"
@@ -13,6 +15,7 @@ const version = "1.0.0"
 type Application struct {
 	Config Config
 	Logger *slog.Logger
+	Movies *movie.Repository
 }
 
 func Run(cfg Config, logger *slog.Logger) error {
@@ -28,6 +31,7 @@ func Run(cfg Config, logger *slog.Logger) error {
 	app := &Application{
 		Config: cfg,
 		Logger: logger,
+		Movies: movie.NewRepository(conn),
 	}
 
 	srv := &http.Server{

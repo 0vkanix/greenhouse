@@ -66,8 +66,8 @@ greenlight/
 - [x] Refactor: Migrate to "restapi" project structure.
 - [x] Chapter 5: Database Setup & Configuration (Pooling, Timeouts).
 - [x] Chapter 6: SQL Migrations.
-- [ ] Chapter 7: CRUD Operations (SQLC Pivot & UUID Migration).
-    - [ ] Migration: Switch `movies.id` from `bigint` to `uuid`.
+- [x] Chapter 7: CRUD Operations (SQLC Pivot & UUID Migration).
+    - [x] Migration: Switch `movies.id` from `bigint` to `uuid`.
     - [ ] SQLC Setup: Configure `sqlc.yaml` for `pgx/v5`.
     - [ ] Queries: Define `CreateMovie`, `GetMovie`, `UpdateMovie`, `DeleteMovie` in `internal/movie/queries.sql`.
     - [ ] Generation: Run `sqlc generate`.

@@ -1,9 +1,9 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	m "github.com/0vkanix/greenlight/internal/movie"
 	"github.com/0vkanix/greenlight/internal/validator"
@@ -32,12 +32,24 @@ func (app *Application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 
 	v := validator.New()
 
-	if m.ValidateMovie(v, movie); !v.Valid() {
+	if movie.Validate(v); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	fmt.Fprintf(w, "%+v\n", input)
+	err = app.Movies.Insert(r.Context(), movie)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/movies/%v", movie.ID))
+
+	err = app.writeJSON(w, r, http.StatusOK, envelope{"movie": movie}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 func (app *Application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -47,13 +59,15 @@ func (app *Application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	movie := m.Movie{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Title:     "Casablanca",
-		Runtime:   102,
-		Genres:    []string{"drama", "romance", "war"},
-		Version:   1,
+	movie, err := app.Movies.Get(r.Context(), id)
+	if err != nil {
+		switch {
+		case errors.Is(err, m.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
 
 	err = app.writeJSON(w, r, http.StatusOK, envelope{"movie": movie}, nil)
