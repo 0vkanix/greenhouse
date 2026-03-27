@@ -12,13 +12,15 @@ import (
 	"github.com/google/uuid"
 )
 
+var ErrInvalidIDParam = errors.New("invalid id parameter")
+
 type envelope map[string]any
 
 func (app *Application) readIDParam(r *http.Request) (uuid.UUID, error) {
 	idParam := chi.URLParamFromCtx(r.Context(), "id")
 	id, err := uuid.Parse(idParam)
 	if err != nil {
-		return uuid.Max, errors.New("invalid id parameter")
+		return uuid.Nil, ErrInvalidIDParam
 	}
 
 	return id, nil

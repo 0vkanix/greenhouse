@@ -7,9 +7,19 @@ package movie
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgconn"
 )
+
+const delete = `-- name: Delete :execresult
+DELETE FROM movies WHERE id = $1
+`
+
+func (q *Queries) Delete(ctx context.Context, id uuid.UUID) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, delete, id)
+}
 
 const get = `-- name: Get :one
 SELECT id, created_at, title, year, runtime, genres, version
@@ -35,7 +45,7 @@ func (q *Queries) Get(ctx context.Context, id uuid.UUID) (Movie, error) {
 const insert = `-- name: Insert :one
 INSERT INTO movies (title, year, runtime, genres)
 VALUES ($1, $2, $3, $4)
-RETURNING id, created_at, title, year, runtime, genres, version
+RETURNING id, created_at, version
 `
 
 type InsertParams struct {
@@ -45,22 +55,48 @@ type InsertParams struct {
 	Genres  []string `json:"genres,omitzero"`
 }
 
-func (q *Queries) Insert(ctx context.Context, arg InsertParams) (Movie, error) {
+type InsertRow struct {
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"-"`
+	Version   int32     `json:"version"`
+}
+
+func (q *Queries) Insert(ctx context.Context, arg InsertParams) (InsertRow, error) {
 	row := q.db.QueryRow(ctx, insert,
 		arg.Title,
 		arg.Year,
 		arg.Runtime,
 		arg.Genres,
 	)
-	var i Movie
-	err := row.Scan(
-		&i.ID,
-		&i.CreatedAt,
-		&i.Title,
-		&i.Year,
-		&i.Runtime,
-		&i.Genres,
-		&i.Version,
-	)
+	var i InsertRow
+	err := row.Scan(&i.ID, &i.CreatedAt, &i.Version)
 	return i, err
+}
+
+const update = `-- name: Update :one
+UPDATE movies
+SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
+WHERE id = $5
+RETURNING version
+`
+
+type UpdateParams struct {
+	Title   string    `json:"title"`
+	Year    int32     `json:"year,omitzero"`
+	Runtime Runtime   `json:"runtime,omitzero"`
+	Genres  []string  `json:"genres,omitzero"`
+	ID      uuid.UUID `json:"id"`
+}
+
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) (int32, error) {
+	row := q.db.QueryRow(ctx, update,
+		arg.Title,
+		arg.Year,
+		arg.Runtime,
+		arg.Genres,
+		arg.ID,
+	)
+	var version int32
+	err := row.Scan(&version)
+	return version, err
 }

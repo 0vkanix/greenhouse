@@ -25,6 +25,7 @@
 - [ ] Environment Management: Use `.envrc` or similar for managing local environment variables like `GREENLIGHT_DB_DSN`.
 - [ ] Testing Standard: Follow "Learn Go with Tests" patterns (Stubs, Spies, Mocks) and maintain a >90% coverage threshold for all features.
 - [ ] Documentation Standard: Post-Chapter task to update/implement documentation for all functions and their corresponding tests.
+- [ ] Example Functions: Post-Chapter task to implement Example functions for relevant domain and API logic to enhance the knowledge base.
 
 
 ## Target Project Structure (Goal)
@@ -84,12 +85,23 @@ greenlight/
     - [x] Domain Tests: Unit test `ValidateMovie` in `internal/movie/movies_test.go`.
     - [ ] Integration Tests: Implement DB-backed tests for `internal/movie/repository.go` (Post-Chapter task with dedicated test DB).
 - [ ] Documentation & Knowledge Base (Post-Chapter Task).
-    - [ ] Generate: Implement/Update documentation for all functions.
+    - [x] Generate: Implement/Update documentation for movie domain.
+    - [ ] Examples: Implement Example functions for movie domain.
     - [ ] Verify: Ensure all tests are documented with their intent and setup.
 - [ ] Chapter 8: Advanced CRUD (Optimistic Concurrency, Timeouts).
+    - [ ] Documentation & Knowledge Base (Post-Chapter Task).
+        - [ ] Update: Check and update documentation for touched functions.
+        - [ ] API Documentation: Implement documentation for the api package.
+        - [ ] Examples: Implement Example functions for the api package.
+    - [ ] Quality Audit: Identify gaps in testing, documentation, and examples across all packages.
+    - [ ] Planning: Formulate strategy for Chapter 9 based on audit results.
 
 - [ ] Chapter 9: Filtering, Sorting, Pagination.
 - [ ] Chapter 10-11: Rate Limiting & Graceful Shutdown.
+    - [ ] Middleware: Implement `checkContentType` (Content Negotiation).
+    - [ ] Middleware: Implement `logRequest` (Structured Request Logging).
+    - [ ] Middleware: Implement `recoverPanic` (Global Panic Recovery).
+    - [ ] Middleware: Implement `commonHeaders` (X-Content-Type-Options, etc.).
 - [ ] Chapter 12-14: User Management & Activation.
 - [ ] Chapter 15-16: Authentication & Authorization.
 - [ ] Chapter 17-18: CORS & Metrics.

@@ -6,6 +6,9 @@ import (
 	"github.com/0vkanix/greenlight/internal/validator"
 )
 
+// TestValidate verifies that the movie validation logic correctly identifies 
+// valid and invalid movie data across various scenarios like empty titles, 
+// future years, and negative runtimes.
 func TestValidate(t *testing.T) {
 	v := validator.New()
 

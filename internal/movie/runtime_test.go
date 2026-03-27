@@ -7,6 +7,8 @@ import (
 	"github.com/0vkanix/greenlight/internal/assert"
 )
 
+// TestRuntimeMarshalJSON verifies that the Runtime type correctly 
+// marshals to the expected JSON string format.
 func TestRuntimeMarshalJSON(t *testing.T) {
 	r := Runtime(102)
 
@@ -19,6 +21,8 @@ func TestRuntimeMarshalJSON(t *testing.T) {
 	assert.Equal(t, string(got), want)
 }
 
+// TestRuntimeUnmarshalJSON verifies that the Runtime type correctly 
+// parses various valid and invalid JSON string formats.
 func TestRuntimeUnmarshalJSON(t *testing.T) {
 	tests := []struct {
 		name      string

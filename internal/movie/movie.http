@@ -1,0 +1,54 @@
+### Get movie
+
+# Valid IDs
+# Moana 0ee58bdc-e2de-454f-ad22-e02caa53cc31
+# Black Panther 6350d919-27a6-4b7b-ae8d-4f744bdf0282
+# Deadpool 72dda126-efbc-41f0-8c1d-14141484f540
+# The Breakfast Club c9396c5f-86d8-459a-b20a-5359c1bd15e7
+
+GET http://localhost:4000/v1/movies/6350d919-27a6-4b7b-ae8d-4f744bdf0282 HTTP/1.1
+
+
+### Insert movie
+
+# { "title": "Moana", "year": 2016, "runtime": "107 mins", "genres": [ "animation", "adventure" ]}
+# { "title": "Black Panther", "year": 2018, "runtime": "134 mins", "genres": [ "action", "adventure" ]}
+# { "title": "Deadpool", "year": 2016, "runtime": "108 mins", "genres": [ "action", "comedy" ]}
+# { "title": "The Breakfast Club", "year": 1986, "runtime": "96 mins", "genres": [ "drama" ]}
+
+POST http://localhost:4000/v1/movies HTTP/1.1
+Content-Type: application/json
+
+{
+  "genres": [
+    "drama"
+  ],
+  "runtime": "96 mins",
+  "title": "The Breakfast Club",
+  "year": 1986
+}
+
+
+### Update movie
+
+# { "title": "Black Panther", "year": 2018, "runtime": "134 mins", "genres": [ "action", "adventure", "sci-fi" ]}
+
+PUT http://localhost:4000/v1/movies/6350d919-27a6-4b7b-ae8d-4f744bdf0282 HTTP/1.1
+
+{
+  "genres": [
+    "action",
+    "adventure",
+    "sci-fi"
+  ],
+  "runtime": "134 mins",
+  "title": "Black Panther",
+  "year": 2018
+}
+
+
+### Delete movie
+
+# d1ab0aa2-311f-4ccf-85eb-8c41ca8eb107
+
+DELETE http://localhost:4000/v1/movies/d1ab0aa2-311f-4ccf-85eb-8c41ca8eb107 HTTP/1.1
