@@ -8,6 +8,10 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'db_rw') THEN
         CREATE ROLE db_rw LOGIN PASSWORD '12345678';
     END IF;
+
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'db_test') THEN
+        CREATE ROLE db_test LOGIN PASSWORD 'test';
+    END IF;
 END
 $$;
 
@@ -57,21 +61,20 @@ GRANT CONNECT ON DATABASE greenlight TO db_migrator, db_rw;
 
 CREATE EXTENSION IF NOT EXISTS citext;
 
+-- Grant full control to db_test
+GRANT ALL PRIVILEGES ON DATABASE greenlight_test TO db_test;
+
 REVOKE ALL ON DATABASE greenlight_test FROM PUBLIC;
 REVOKE CREATE ON SCHEMA public FROM PUBLIC;
 
-ALTER SCHEMA public OWNER TO db_migrator;
-GRANT USAGE, CREATE ON SCHEMA public TO db_migrator;
+ALTER SCHEMA public OWNER TO db_test;
+GRANT ALL PRIVILEGES ON SCHEMA public TO db_test;
 
-GRANT USAGE ON SCHEMA public TO db_rw;
+-- Default privileges for objects created in the schema
+ALTER DEFAULT PRIVILEGES FOR ROLE db_test IN SCHEMA public
+    GRANT ALL PRIVILEGES ON TABLES TO db_test;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO db_rw;
-GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO db_rw;
+ALTER DEFAULT PRIVILEGES FOR ROLE db_test IN SCHEMA public
+    GRANT ALL PRIVILEGES ON SEQUENCES TO db_test;
 
-ALTER DEFAULT PRIVILEGES FOR ROLE db_migrator IN SCHEMA public
-    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO db_rw;
-
-ALTER DEFAULT PRIVILEGES FOR ROLE db_migrator IN SCHEMA public
-    GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO db_rw;
-
-GRANT CONNECT ON DATABASE greenlight_test TO db_migrator, db_rw;
+GRANT CONNECT ON DATABASE greenlight_test TO db_migrator, db_test;

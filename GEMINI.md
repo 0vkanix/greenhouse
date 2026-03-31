@@ -70,29 +70,32 @@ greenlight/
 - [x] Refactor: Migrate to "restapi" project structure.
 - [x] Chapter 5: Database Setup & Configuration (Pooling, Timeouts).
 - [x] Chapter 6: SQL Migrations.
-- [ ] Chapter 7: CRUD Operations (SQLC Pivot & UUID Migration).
+- [x] Chapter 7: CRUD Operations (SQLC Pivot & UUID Migration).
     - [x] Migration: Switch `movies.id` from `bigint` to `uuid`.
     - [x] SQLC Setup: Configure `sqlc.yaml` for `pgx/v5`.
     - [x] Queries: Define `CreateMovie`, `GetMovie`, `UpdateMovie`, `DeleteMovie` in `internal/movie/queries.sql`.
     - [x] Generation: Run `sqlc generate`.
     - [x] Repository: Implement `internal/movie/repository.go` as an `sqlc` wrapper.
-- [ ] Testing & Quality Control (Goal: >90% Coverage).
+- [x] Testing & Quality Control (Goal: >90% Coverage).
     - [x] Refactor: Introduce `RepositoryInterface` for mockable data access.
     - [x] Implementation: Use "Learn Go with Tests" patterns for all future tests.
     - [x] Verification: Continuous 90% coverage threshold for every new feature.
     - [x] Mocking: Implement `StubMovieRepository` (The "Learn Go with Tests" pattern).
     - [x] API Tests: Update `handler_test.go` and `helpers_test.go` for UUID support.
     - [x] Domain Tests: Unit test `ValidateMovie` in `internal/movie/movies_test.go`.
-    - [ ] Integration Tests: Implement DB-backed tests for `internal/movie/repository.go` (Post-Chapter task with dedicated test DB).
-- [ ] Documentation & Knowledge Base (Post-Chapter Task).
+    - [x] Integration Tests: Implement DB-backed tests for `internal/movie/repository.go` (Post-Chapter task with dedicated test DB).
+- [x] Documentation & Knowledge Base (Post-Chapter Task).
     - [x] Generate: Implement/Update documentation for movie domain.
-    - [ ] Examples: Implement Example functions for movie domain.
-    - [ ] Verify: Ensure all tests are documented with their intent and setup.
+    - [x] Examples: Implement Example functions for movie domain.
+    - [x] Verify: Ensure all tests are documented with their intent and setup.
 - [ ] Chapter 8: Advanced CRUD (Optimistic Concurrency, Timeouts).
+    - [ ] Implementation: Add version-based Optimistic Concurrency Control to `Update`.
+    - [ ] Implementation: Apply `context.WithTimeout` to all database operations.
     - [ ] Documentation & Knowledge Base (Post-Chapter Task).
         - [ ] Update: Check and update documentation for touched functions.
         - [ ] API Documentation: Implement documentation for the api package.
         - [ ] Examples: Implement Example functions for the api package.
+        - [ ] Integration Tests: Refine integration tests for movie package.
     - [ ] Quality Audit: Identify gaps in testing, documentation, and examples across all packages.
     - [ ] Planning: Formulate strategy for Chapter 9 based on audit results.
 

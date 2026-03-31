@@ -10,13 +10,12 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
-	"github.com/0vkanix/greenlight/internal/movie"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 func TestReadIDParam(t *testing.T) {
-	app := newTestApplication(t, &movie.StubMovieRepository{})
+	app := newTestApplication(t, &StubMovieRepository{})
 
 	tests := []struct {
 		name    string
@@ -78,7 +77,7 @@ func TestReadIDParam(t *testing.T) {
 }
 
 func TestWriteJSON(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 
 	t.Run("Custom headers", func(t *testing.T) {
@@ -99,7 +98,7 @@ func TestWriteJSON(t *testing.T) {
 }
 
 func TestReadJSON(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 
 	tests := []struct {

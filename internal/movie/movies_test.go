@@ -1,63 +1,85 @@
-package movie
+package movie_test
 
 import (
+	"fmt"
 	"testing"
 
+	m "github.com/0vkanix/greenlight/internal/movie"
+	"github.com/0vkanix/greenlight/internal/movie/types"
 	"github.com/0vkanix/greenlight/internal/validator"
 )
 
-// TestValidate verifies that the movie validation logic correctly identifies 
-// valid and invalid movie data across various scenarios like empty titles, 
+// ExampleMovie_Validate demonstrates how to use the Validate method
+// to check if a movie object conforms to business rules.
+func ExampleMovie_Validate() {
+	v := validator.New()
+	m := m.Movie{
+		Title:   "Casablanca",
+		Year:    1942,
+		Runtime: types.Runtime(102),
+		Genres:  []string{"drama", "war"},
+	}
+
+	m.Validate(v)
+
+	if v.Valid() {
+		fmt.Println("Movie is valid")
+	}
+	// Output: Movie is valid
+}
+
+// TestValidate verifies that the movie validation logic correctly identifies
+// valid and invalid movie data across various scenarios like empty titles,
 // future years, and negative runtimes.
 func TestValidate(t *testing.T) {
 	v := validator.New()
 
 	tests := []struct {
 		name  string
-		movie Movie
+		movie m.Movie
 	}{
 		{
 			"Valid movie",
-			Movie{
+			m.Movie{
 				Title:   "Casablanca",
 				Year:    2026,
-				Runtime: Runtime(120),
+				Runtime: types.Runtime(120),
 				Genres:  []string{"drama", "war"},
 			},
 		},
 		{
 			"Empty title",
-			Movie{
+			m.Movie{
 				Title:   "",
 				Year:    2026,
-				Runtime: Runtime(120),
+				Runtime: types.Runtime(120),
 				Genres:  []string{"drama", "war"},
 			},
 		},
 		{
 			"Future year",
-			Movie{
+			m.Movie{
 				Title:   "Casablanca",
 				Year:    9999,
-				Runtime: Runtime(120),
+				Runtime: types.Runtime(120),
 				Genres:  []string{"drama", "war"},
 			},
 		},
 		{
 			"Negative runtime",
-			Movie{
+			m.Movie{
 				Title:   "Casablanca",
 				Year:    2026,
-				Runtime: Runtime(-120),
+				Runtime: types.Runtime(-120),
 				Genres:  []string{"drama", "war"},
 			},
 		},
 		{
 			"Too many genres",
-			Movie{
+			m.Movie{
 				Title:   "Casablanca",
 				Year:    2026,
-				Runtime: Runtime(120),
+				Runtime: types.Runtime(120),
 				Genres:  []string{"drama", "war", "comedy", "documentary", "love", "game"},
 			},
 		},

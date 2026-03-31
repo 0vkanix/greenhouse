@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/0vkanix/greenlight/internal/movie/db"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -13,7 +14,7 @@ import (
 // ErrRecordNotFound is returned when a requested movie record does not exist in the database.
 var ErrRecordNotFound = errors.New("record not found")
 
-// RepositoryInterface defines the contract for movie data access, allowing for 
+// RepositoryInterface defines the contract for movie data access, allowing for
 // both concrete database implementations and mock implementations for testing.
 type RepositoryInterface interface {
 	Insert(ctx context.Context, movie *Movie) error
@@ -22,22 +23,22 @@ type RepositoryInterface interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-// Repository is a concrete implementation of RepositoryInterface using a 
+// Repository is a concrete implementation of RepositoryInterface using a
 // PostgreSQL connection pool and generated sqlc queries.
 type Repository struct {
 	pool    *pgxpool.Pool
-	queries *Queries
+	queries *db.Queries
 }
 
 // NewRepository creates and returns a new movie repository instance.
 func NewRepository(pool *pgxpool.Pool) *Repository {
 	return &Repository{
 		pool:    pool,
-		queries: New(pool),
+		queries: db.New(pool),
 	}
 }
 
-// Delete removes a movie record from the database by its UUID. 
+// Delete removes a movie record from the database by its UUID.
 // It returns ErrRecordNotFound if the ID does not exist.
 func (r *Repository) Delete(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
@@ -53,13 +54,13 @@ func (r *Repository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-// Update modifies an existing movie record. It hydrates the movie pointer 
+// Update modifies an existing movie record. It hydrates the movie pointer
 // with the new system-generated version number.
 func (r *Repository) Update(ctx context.Context, movie *Movie) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	arg := UpdateParams{
+	arg := db.UpdateParams{
 		ID:      movie.ID,
 		Title:   movie.Title,
 		Year:    movie.Year,
@@ -82,13 +83,13 @@ func (r *Repository) Update(ctx context.Context, movie *Movie) error {
 	return nil
 }
 
-// Insert adds a new movie record to the database. It hydrates the movie pointer 
+// Insert adds a new movie record to the database. It hydrates the movie pointer
 // with system-generated fields (ID, CreatedAt, Version).
 func (r *Repository) Insert(ctx context.Context, movie *Movie) error {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	arg := InsertParams{
+	arg := db.InsertParams{
 		Title:   movie.Title,
 		Year:    movie.Year,
 		Runtime: movie.Runtime,
@@ -107,13 +108,13 @@ func (r *Repository) Insert(ctx context.Context, movie *Movie) error {
 	return nil
 }
 
-// Get retrieves a single movie record by its UUID. It returns ErrRecordNotFound 
+// Get retrieves a single movie record by its UUID. It returns ErrRecordNotFound
 // if no matching record is found.
 func (r *Repository) Get(ctx context.Context, id uuid.UUID) (*Movie, error) {
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	movie, err := r.queries.Get(ctx, id)
+	row, err := r.queries.Get(ctx, id)
 	if err != nil {
 		switch {
 		case errors.Is(err, pgx.ErrNoRows):
@@ -123,5 +124,7 @@ func (r *Repository) Get(ctx context.Context, id uuid.UUID) (*Movie, error) {
 		}
 	}
 
-	return &movie, nil
+	// Because movie.Movie is a type definition of db.Movie,
+	// we can safely cast the pointer.
+	return (*Movie)(&row), nil
 }

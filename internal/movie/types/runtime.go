@@ -1,4 +1,4 @@
-package movie
+package types
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ var ErrInvalidRuntimeFormat = errors.New("invalid runtime format")
 
 // Runtime represents a movie's runtime in minutes. It is a custom type 
 // to allow for custom JSON marshaling and unmarshaling.
-type Runtime int32
+type Runtime int
 
 // MarshalJSON returns the runtime as a JSON string in the format "<runtime> mins".
 func (r Runtime) MarshalJSON() ([]byte, error) {

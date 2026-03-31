@@ -10,6 +10,8 @@ help:
 .PHONY: test-full
 test-full:
 	go test -v -count=1 -coverprofile=coverage.out ./...
+	grep -v "internal/movie/db" coverage.out > coverage.filtered.out
+	mv coverage.filtered.out coverage.out
 	go tool cover -func=coverage.out
 
 .PHONY: test

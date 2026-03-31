@@ -1,31 +1,28 @@
 version: "2"
 sql:
-  # --- Movie Domain ---
   - name: "movie"
     engine: "postgresql"
     schema: "migrations/"
     queries: "internal/movie/queries.sql"
     gen:
       go:
-        package: "movie"
-        out: "internal/movie/"
+        package: "db"
+        out: "internal/movie/db/"
         sql_package: "pgx/v5"
+        emit_exported_queries: false
         emit_json_tags: true
         overrides:
           - db_type: "uuid"
-            go_type:
-              import: "github.com/google/uuid"
-              type: "UUID"
+            go_type: "github.com/google/uuid.UUID"
           - column: "movies.created_at"
-            go_type:
-              import: "time"
-              type: "Time"
-            go_struct_tag: 'json:"-"'
+            go_type: "time.Time"
           - column: "movies.year"
+            go_type: "int"
             go_struct_tag: 'json:"year,omitzero"'
           - column: "movies.runtime"
-            go_type:
-              type: "Runtime"
+            go_type: "github.com/0vkanix/greenlight/internal/movie/types.Runtime"
             go_struct_tag: 'json:"runtime,omitzero"'
+          - column: "movies.version"
+            go_type: "int"
           - column: "movies.genres"
             go_struct_tag: 'json:"genres,omitzero"'

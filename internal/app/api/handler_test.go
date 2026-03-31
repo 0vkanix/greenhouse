@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 
@@ -52,7 +53,7 @@ func TestCreateMovieHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stubRepo := &movie.StubMovieRepository{Error: tt.stubError}
+			stubRepo := &StubMovieRepository{Error: tt.stubError}
 			app := newTestApplication(t, stubRepo)
 			server := newTestServer(t, app.routes())
 			defer server.Close()
@@ -75,7 +76,7 @@ func TestShowMovieHandler(t *testing.T) {
 	tests := []struct {
 		name      string
 		movieID   string
-		stubRepo  *movie.StubMovieRepository
+		stubRepo  *StubMovieRepository
 		wantCode  int
 		wantData  *movie.Movie
 		wantError string
@@ -83,7 +84,7 @@ func TestShowMovieHandler(t *testing.T) {
 		{
 			name:    "Valid request",
 			movieID: id.String(),
-			stubRepo: &movie.StubMovieRepository{
+			stubRepo: &StubMovieRepository{
 				Movies: map[uuid.UUID]*movie.Movie{id: wantMovie},
 			},
 			wantCode: http.StatusOK,
@@ -92,19 +93,19 @@ func TestShowMovieHandler(t *testing.T) {
 		{
 			name:     "Invalid ID parameter (non-UUID)",
 			movieID:  "123",
-			stubRepo: &movie.StubMovieRepository{},
+			stubRepo: &StubMovieRepository{},
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name:     "Non-existent movie",
 			movieID:  uuid.New().String(),
-			stubRepo: &movie.StubMovieRepository{Movies: map[uuid.UUID]*movie.Movie{}},
+			stubRepo: &StubMovieRepository{Movies: map[uuid.UUID]*movie.Movie{}},
 			wantCode: http.StatusNotFound,
 		},
 		{
 			name:    "Database error",
 			movieID: id.String(),
-			stubRepo: &movie.StubMovieRepository{
+			stubRepo: &StubMovieRepository{
 				Error: errors.New("database error"),
 			},
 			wantCode: http.StatusInternalServerError,
@@ -136,4 +137,112 @@ func TestShowMovieHandler(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestUpdateMovieHandler(t *testing.T) {
+	id := uuid.New()
+	movieObj := &movie.Movie{
+		ID:      id,
+		Title:   "Casablanca",
+		Year:    1942,
+		Runtime: 102,
+		Genres:  []string{"drama", "war"},
+		Version: 1,
+	}
+
+	tests := []struct {
+		name      string
+		movieID   string
+		input     string
+		stubRepo  *StubMovieRepository
+		wantCode  int
+		wantTitle string
+	}{
+		{
+			name:    "Valid request",
+			movieID: id.String(),
+			input:   `{"title":"Casablanca (Updated)","year":1942,"runtime":"102 mins","genres":["drama"]}`,
+			stubRepo: &StubMovieRepository{
+				Movies: map[uuid.UUID]*movie.Movie{id: movieObj},
+			},
+			wantCode:  http.StatusOK,
+			wantTitle: "Casablanca (Updated)",
+		},
+		{
+			name:     "Invalid ID parameter (non-UUID)",
+			movieID:  "abc",
+			input:    `{"title":"Updated"}`,
+			stubRepo: &StubMovieRepository{},
+			wantCode: http.StatusNotFound,
+		},
+		{
+			name:     "Malformed JSON",
+			movieID:  id.String(),
+			input:    `{"title":}`,
+			stubRepo: &StubMovieRepository{},
+			wantCode: http.StatusBadRequest,
+		},
+		{
+			name:     "Validation failure",
+			movieID:  id.String(),
+			input:    `{"title":""}`,
+			stubRepo: &StubMovieRepository{},
+			wantCode: http.StatusUnprocessableEntity,
+		},
+		{
+			name:     "Non-existent movie",
+			movieID:  uuid.New().String(),
+			input:    `{"title":"Updated","year":1942,"runtime":"102 mins","genres":["drama"]}`,
+			stubRepo: &StubMovieRepository{Movies: map[uuid.UUID]*movie.Movie{}},
+			wantCode: http.StatusNotFound,
+		},
+		{
+			name:    "Database error",
+			movieID: id.String(),
+			input:   `{"title":"Updated","year":1942,"runtime":"102 mins","genres":["drama"]}`,
+			stubRepo: &StubMovieRepository{
+				Error: errors.New("database error"),
+			},
+			wantCode: http.StatusInternalServerError,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			app := newTestApplication(t, tt.stubRepo)
+			server := newTestServer(t, app.routes())
+			defer server.Close()
+
+			url := fmt.Sprintf("/v1/movies/%s", tt.movieID)
+			code, _, body := server.put(t, url, []byte(tt.input))
+
+			assert.Equal(t, code, tt.wantCode)
+
+			if tt.wantTitle != "" {
+				assert.StringContains(t, body, tt.wantTitle)
+			}
+		})
+	}
+}
+
+func (ts *testServer) put(t *testing.T, urlPath string, data []byte) (int, http.Header, string) {
+	r, err := http.NewRequest(http.MethodPut, ts.URL+urlPath, bytes.NewReader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Header.Set("Content-Type", "application/json")
+
+	rs, err := ts.Client().Do(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer rs.Body.Close()
+	body, err := io.ReadAll(rs.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body = bytes.TrimSpace(body)
+	return rs.StatusCode, rs.Header, string(body)
 }

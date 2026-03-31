@@ -6,11 +6,10 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
-	"github.com/0vkanix/greenlight/internal/movie"
 )
 
 func TestHealthcheckHandler(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	server := newTestServer(t, app.routes())
 	defer server.Close()

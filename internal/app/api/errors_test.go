@@ -7,11 +7,10 @@ import (
 	"testing"
 
 	"github.com/0vkanix/greenlight/internal/assert"
-	"github.com/0vkanix/greenlight/internal/movie"
 )
 
 func TestMethodNotAllowedResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	server := newTestServer(t, app.routes())
 	defer server.Close()
@@ -22,7 +21,7 @@ func TestMethodNotAllowedResponse(t *testing.T) {
 }
 
 func TestNotFoundResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	server := newTestServer(t, app.routes())
 	defer server.Close()
@@ -33,7 +32,7 @@ func TestNotFoundResponse(t *testing.T) {
 }
 
 func TestBadRequestResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	rr := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodPost, "/", nil)
@@ -46,7 +45,7 @@ func TestBadRequestResponse(t *testing.T) {
 }
 
 func TestServerErrorResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	rr := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)
@@ -58,7 +57,7 @@ func TestServerErrorResponse(t *testing.T) {
 }
 
 func TestErrorResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 
 	rr := httptest.NewRecorder()
@@ -70,7 +69,7 @@ func TestErrorResponse(t *testing.T) {
 }
 
 func TestFailedValidationResponse(t *testing.T) {
-	stubRepo := &movie.StubMovieRepository{}
+	stubRepo := &StubMovieRepository{}
 	app := newTestApplication(t, stubRepo)
 	rr := httptest.NewRecorder()
 	r, _ := http.NewRequest(http.MethodGet, "/", nil)

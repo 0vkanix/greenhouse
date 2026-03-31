@@ -3,12 +3,13 @@
 //   sqlc v1.30.0
 // source: queries.sql
 
-package movie
+package db
 
 import (
 	"context"
 	"time"
 
+	"github.com/0vkanix/greenlight/internal/movie/types"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -49,16 +50,16 @@ RETURNING id, created_at, version
 `
 
 type InsertParams struct {
-	Title   string   `json:"title"`
-	Year    int32    `json:"year,omitzero"`
-	Runtime Runtime  `json:"runtime,omitzero"`
-	Genres  []string `json:"genres,omitzero"`
+	Title   string        `json:"title"`
+	Year    int           `json:"year,omitzero"`
+	Runtime types.Runtime `json:"runtime,omitzero"`
+	Genres  []string      `json:"genres,omitzero"`
 }
 
 type InsertRow struct {
 	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"-"`
-	Version   int32     `json:"version"`
+	CreatedAt time.Time `json:"created_at"`
+	Version   int       `json:"version"`
 }
 
 func (q *Queries) Insert(ctx context.Context, arg InsertParams) (InsertRow, error) {
@@ -81,14 +82,14 @@ RETURNING version
 `
 
 type UpdateParams struct {
-	Title   string    `json:"title"`
-	Year    int32     `json:"year,omitzero"`
-	Runtime Runtime   `json:"runtime,omitzero"`
-	Genres  []string  `json:"genres,omitzero"`
-	ID      uuid.UUID `json:"id"`
+	Title   string        `json:"title"`
+	Year    int           `json:"year,omitzero"`
+	Runtime types.Runtime `json:"runtime,omitzero"`
+	Genres  []string      `json:"genres,omitzero"`
+	ID      uuid.UUID     `json:"id"`
 }
 
-func (q *Queries) Update(ctx context.Context, arg UpdateParams) (int32, error) {
+func (q *Queries) Update(ctx context.Context, arg UpdateParams) (int, error) {
 	row := q.db.QueryRow(ctx, update,
 		arg.Title,
 		arg.Year,
@@ -96,7 +97,7 @@ func (q *Queries) Update(ctx context.Context, arg UpdateParams) (int32, error) {
 		arg.Genres,
 		arg.ID,
 	)
-	var version int32
+	var version int
 	err := row.Scan(&version)
 	return version, err
 }
